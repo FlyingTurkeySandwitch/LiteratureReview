@@ -1,0 +1,217 @@
+\documentclass[10pt,twocolumn]{article}
+
+% use the oxycomps style file
+
+\usepackage{oxycomps}
+
+
+% usage: \fixme[comments describing issue]{text to be fixed}
+% define \fixme as not doing anything special
+\newcommand{\fixme}[2][]{#2}
+% overwrite it so it shows up as red
+\renewcommand{\fixme}[2][]{\textcolor{red}{#2}}
+% overwrite it again so related text shows as footnotes
+%\renewcommand{\fixme}[2][]{\textcolor{red}{#2\footnote{#1}}}
+
+% read references.bib for the bibtex data
+\bibliography{references}
+
+% include metadata in the generated pdf file
+\pdfinfo{
+    /Title (Literature Review)
+    /Author (Danny Kim)
+}
+
+% set the title and author information
+\title{The Occidental Computer Science Comprehensive Project: \\ Goals, Timeline, Format, and Advice}
+\author{Justin Li}
+\affiliation{Occidental College}
+\email{justinnhli@oxy.edu}
+
+\begin{document}
+
+\maketitle
+
+
+
+\section{Literature Review}
+\label{sec:paper}
+note: the sections are semi-related on the same topic but also not really. The idea was to keep technical background and evaluation metrics broad while keeping prior work and methods more connected in case of sudden project switches. Also I appologies for being so late...(T\_T)
+
+
+\subsection{Technical Background}
+
+\subsubsection{Malware}
+Malware, otherwise known as malicious software, describes any type of intrusive software designed to perform malicious actions in a computer system. This can include stealing private information, demanding ransom, or damaging network systems \cite{Xiang2023}. It is a persistent and evolving threat in the cybersecurity landscape, with attackers constantly developing new variants and techniques to bypass security measures while defenders aim to develop new methods to detect them.
+
+\subsubsection{Adversarial Attacks}
+Adversarial attacks describe a type of attack where an adversary modifies a malware sample with the goal of fooling a machine learning based malware detection system. They can be categorized into two main types: evasion and poisoning. Evasion attacks describe a type of attack where the adversary deliberately manipulates the input example with different levels of perturbations, intending to fool the ML model to misclassify the input \cite{Qi2022}. Poisoning attacks on the other hand occur when adversaries gain access to the training data and can add malicious samples to manipulate the trained ML or DL model. One way an adversary can poison a data set is by adding manipulated samples to a crowdsourced service (such as VirusTotal) \cite{Oprea2022}, which many security companies use for ML training data.
+
+\subsubsection{Attack settings}
+White Box attacks:
+	In a white-box setting, the adversary has full knowledge of the detection model, including its architecture, parameters, training data, and methodologies. This deep understanding allows them to craft malicious samples specifically designed to exploit the model’s weaknesses and evade detection \cite{Kaushik2023}. While white-box attacks can be highly effective against their target model due to their tailored nature, they generally do not transfer well to other models \cite{Costa2023}, as they are optimized for a specific system and do not reflect most real-world attack scenarios
+
+Black box attacks:
+	A black-box setting occurs when the adversary has access only to the model's inputs and outputs, without direct knowledge of its internal structure, parameters, or training data. However, by analyzing the model’s behavior, adversaries can often infer details about the underlying algorithm and dataset based on the model’s intended task \cite{Wang2022}. Due to this limited knowledge, black-box settings more accurately reflect real-world attack scenarios and provide a practical framework for evaluating adversarial robustness \cite{Qi2022}.
+
+Gray box attacks:
+	A gray-box setting falls between white-box and black-box scenarios, where the adversary has partial knowledge of the target model. In this setting, the attacker may possess limited details about the model, such as its architecture or training data, while other aspects remain unknown. Adversaries can further refine their understanding through iterative probing and analysis, gradually gathering more information to enhance their attacks \cite{Alotaibi2023}. This setting also mirrors practical scenarios where some model details are accessible, but complete transparency is not available.
+
+
+\subsection{Prior Work}
+
+Described by \textcite{Maiorca2019}, previous works on PDF Malware evasion attacks can be categorized into two schools of thought, Optimization based and Heuristic based. While Optimization based attacks perform small, deliberate modifications to the sample to maximize the chances of the sample being classified as benign or malicious, Heuristic based attacks attempt to increase the chances of evasion by making malicious samples similar to benign samples by either adding benign features to malicious files or by injecting a malicious payload to benign files.
+
+\subsubsection{Optimization Based Attacks}
+Formulated by \textcite{Biggio2017}, the optimization of adversarial PDF malware is defined as: 
+
+\[
+\arg\min_{x} F(x) = \hat{g}(x) - 
+\lambda /n \sum_{i \mid y_{c_i} = -1} 
+k \left( \frac{x - x_i}{h} \right)
+\]
+\[
+\text{s.t. } d(x, x_0) \leq d_{\max}
+\]
+
+Where h is the bandwidth parameter and n being the number of benign samples the adversary has access to. 
+
+
+\textcite{Biggio2014} conducted an optimization-based attack on a Support Vector Machine (SVM) under two different settings: perfect knowledge and limited knowledge. In the limited knowledge scenario, the adversary approximates the decision boundary using a surrogate classifier trained on a surrogate dataset. The authors optimized the given equation using a gradient descent algorithm to generate adversarial samples and found that this method of attack was effective against SVM based malware detectors. 
+
+\subsubsection{Heuristic Based Attacks}
+Mimicry and reverse mimicry attacks are designed to bypass malware detection by exploiting how these systems identify threats. Mimicry attacks modify malicious files to appear benign, making them harder to detect. Reverse mimicry attacks on the other hand, take the opposite approach by altering benign components to resemble known malicious patterns or by injecting malicious samples into benign samples. 
+
+\textcite{Srndic2014} proposed PDFRATE, a tool that scans PDFs and assigns a score based on their malicious functionality. The authors evaluated its resilience against a mimicry attack under various attack scenarios, ranging from partial knowledge of features, training data, or the classifier model (Scenarios F, Ft, Fc) to full knowledge of all three components (Scenario FTC). The mimicry attack involved injecting malicious content between the cross-reference table (CRT) and the trailer. This method was chosen because, according to official PDF standards, PDF readers begin parsing from the end of the file, locate the trailer, and then jump to the CRT, effectively ignoring any content placed between them.
+
+\textcite{Maiorca2013}, on the other hand, implemented three types of reverse mimicry attacks:
+
+EXEembed: A Zeus EXE payload was embedded within the file during compression.
+PDFembed: A PDF file was embedded within another PDF, containing JavaScript that exploits the CVE-2009-4324 vulnerability. The embedded file automatically executes when the original PDF is opened, without requiring user interaction.
+JSinject: The same JavaScript exploit was directly embedded in the root file.
+These attack methods were tested against four different types of PDF malware detectors: Wepawet, PJScan, Malware Slayer, and three online versions of PDFRate (Contagio, George Mason, and the Community version).
+
+
+
+
+
+
+
+
+\subsection{Methods}
+
+\subsubsection{Dataset}
+MALWAREbazaar \cite{MalwareBazaar} will be used to obtain malicious JavaScript samples. This dataset was chosen because it is freely accessible, making it a valuable resource for researchers with limited funding. It contains a diverse collection of real-world malware samples gathered from various sources, ensuring that the analysis reflects actual threats seen in modern attacks. Additionally, the platform is regularly updated with new submissions, keeping the dataset relevant for evaluating adversarial attacks against current detection systems.
+
+\subsubsection{Adversarial Sample Generation}
+
+To examine various attack strategies in PDF malware, different mimicry attacks will be tested. Specifically, the attacks will follow the methodologies outlined by \textcite{Maiorca2013}, employing EXEembed and JSinject on samples derived from MALWAREbazaar. These two techniques were selected because they preserve the malware’s functionality, ensuring that the modifications made to evade detection do not affect the functionality of the malicious code. This characteristic ensures a broader applicability of the experiment. The PDFembed technique was excluded from consideration, as the CVE-2009-4324 vulnerability was patched in Adobe Reader 9.2 \cite{TREND}.
+
+The framework highlighted by \textcite{Maiorca2013} was utilized due to financial and time constraints. EXEembed attack samples can be generated using publicly available tools. The injection of malicious JavaScript code is facilitated by PeePDF’s built-in embedding function \cite{PeePDF}, which also enables the code to be embedded within a compressed stream. This additional layer of obfuscation is particularly relevant for bypassing detectors that do not decompress objects within a PDF, such as raw parsers.
+
+Similarly, JSinject was chosen for its ease of implementation. The injection of malicious JavaScript code can be achieved using Python libraries \cite{RSMBlog}that are readily available online.
+
+To evaluate the effectiveness of each attack, 50 malicious samples will be selected from the dataset and analyzed using VirusTotal to establish a baseline detection rate. The sample set will then be divided into two equal groups, with one group subjected to the EXEembed framework and the other to the JSinject framework. The 50 adversarial samples will then be reassessed using VirusTotal to measure the percentage of samples that successfully evade detection.
+
+
+
+
+\subsection{Evaluation Metrics}
+
+Evaluating the success of adversarial attacks on PDF malware classifiers requires a robust set of metrics to measure effectiveness. Many different studies have employed their own unique methods, each customized to assess how well an adversarial sample bypasses detection mechanisms or affects classification accuracy. This section explores common evaluation metrics utilized in prior research and establishes the reasoning behind their adoption.
+
+Evasion rate is a widely used metric to determine the proportion of adversarial samples that successfully bypass detection. It is defined as \cite{Rando2024}:
+
+\[
+ER = \frac{\text{Adversarial samples that bypass detection}}{\text{Number of samples}}
+\]
+
+
+A high evasion rate indicates that adversarial samples effectively deceive the classifier. \\
+
+Fooling rate measures the percentage of samples that have their labels changed after perturbation \cite{Huan2020}. This is especially relevant in adversarial image attacks but has been adapted for PDF malware classification. It provides insight into the effectiveness of adversarial perturbations in altering classifier decisions.
+
+Accuracy is a fundamental metric that evaluates the overall performance of a classifier, including its ability to correctly classify both malicious and benign samples. It is defined as:
+\[
+\text{Accuracy} = \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}}
+\]
+
+Where TP and TN represent true positive and negatives while FP and FN represent false positive and negatives.
+Accuracy alone, however, may not be sufficient to assess adversarial robustness, as high accuracy does not necessarily indicate resilience to adversarial attacks.
+
+
+
+\printbibliography
+
+\appendix
+
+\clearpage
+
+\onecolumn
+
+\section{Paper Rubric}
+\begin{landscape}\small
+\begin{longtable}{p{0.19\linewidth} | p{0.19\linewidth} | p{0.19\linewidth} | p{0.19\linewidth} | p{0.19\linewidth}}
+\textbf{CONTENT AREA}
+    & \textbf{Excellent}
+    & \textbf{Good}
+    & \textbf{Marginal}
+    & \textbf{Unacceptable} \\
+\toprule \endhead
+\textbf{Problem Statement} - What problem are you solving? Why is it important?
+    & \cellcolor{excellent} The problem to be solved is clearly stated, and its importance and value clearly laid out. All relevant societal context is discussed, as it relates to and will influence the project.
+    & \cellcolor{good} The problem to be solved is clearly stated, but its importance and value overstated. Most relevant societal context is discussed, but may need clarification on how it relates to or will influence the project.
+    & \cellcolor{marginal} The problem to be solved is only vaguely stated, and its importance and value overstated. Significant social context is missing, or the context does not readily relate to the project.
+    & \cellcolor{unacceptable} There is no clear problem to be solved, with minimal explanation of the importance/value of the project. Little to no societal context is presented. \\
+\midrule
+\textbf{Technical Background} - What does someone need to know to understand the problem?
+    & \cellcolor{excellent} All technical terms are defined as they are used and understandable for the average CS student. Relevant mathematical and algorithmic concepts are introduced and explained.
+    & \cellcolor{good} Most technical terms are defined as they are used, but may require additional study for the average CS student. Some relevant mathematical and algorithmic concepts are missing.
+    & \cellcolor{marginal} Most technical terms are defined, or include jargon not understandable by the average CS student. Many relevant mathematical and algorithmic concepts are missing.
+    & \cellcolor{unacceptable} The importance/value of the project is never explained. Many technical terms are undefined, or include jargon only the author understands. The necessary mathematical and algorithmic concepts are missing. \\
+\midrule
+\textbf{Prior Work} - How have other people solved similar problems? What inspirations are you drawing from?
+    & \cellcolor{excellent} All literature/prior work cited is relevant, and no relevant literature/work is missing. Papers are discussed in thematic groups, highlighting how they are connected. The discussion highlights how the literature influenced the project.
+    & \cellcolor{good} The majority of the literature cited is relevant, but may be missing important areas of review. Papers are discussed in thematic groups, but with missing connections. Irrelevant details may be included in the description and key contributions to the project may be missing.
+    & \cellcolor{marginal} Most of the literature/work cited is relevant, but many are not or may be missing. Papers are discussed in thematic groups, but with little or no connections. Descriptions include many irrelevant details, with unclear or missing contributions to the project.
+    & \cellcolor{unacceptable} Most of the literature/work cited is irrelevant to the project. Papers are discussed individually with minimal connections. Significant or foundational work in the area is not included. Descriptions include irrelevant details or incorrect claims. \\
+\midrule
+\textbf{Methods} - How did you go about solving the problem? What did you do?
+    & \cellcolor{excellent} The approach to the project is clearly laid out, and justified with respect to literature and the goals of the project. Intermediate decisions are explained and evidence for choosing between approaches presented. Prior and current work is clearly delineated.
+    & \cellcolor{good} The approach to the project is laid out and justified, with minor details missing. Intermediate decisions may be missing. Alternative approaches are listed, but not the evidence for rejecting them. Prior and current work is delineated, with some areas of confusion
+    & \cellcolor{marginal} The approach to the project is laid out, with insufficient detail. Intermediate decisions are not mentioned. The methods are only barely justified. No consideration to alternate approaches is given. The boundary between prior and current work is unclear.
+    & \cellcolor{unacceptable} No methods, or methods that do not correspond to what was actually done. Intermediate decisions are unexplained and inexplicable. Prior and current work is muddled, or work is overstated or plagiarized. \\
+\midrule
+\textbf{Evaluation Metrics} - How will we know that the problem has been solved?
+    & \cellcolor{excellent} The metrics used and method of collection are appropriate, clearly explained, and justified with respect to the literature and the problem to be solved. Other metrics and why they are not used are discussed.
+    & \cellcolor{good} The metrics used and method of collection are appropriate and clearly explained, although the justification may need work. Some other metrics are considered, but with weak reasons for not using them.
+    & \cellcolor{marginal} The metrics used and method of collection are marginally appropriate, but not clearly explained and with minimal justification. No other metrics were considered.
+    & \cellcolor{unacceptable} No metrics were given, or the specific method of calculation unclear. The metrics are not justified or do not match the goals of the project. \\
+\midrule
+\textbf{Results and Discussion} - Did you actually solve the problem? Why/Why not?
+    & \cellcolor{excellent} The stated metrics are used and the results explained with respect to the methods. Alternate explanations and caveats to the results are explored. The results are connected to the goals of the project.
+    & \cellcolor{good} The stated metrics are used and the results explained, although they may not be verified. Some caveats are listed, but alternate explanations are not considered. The results are connected to the goals of the project.
+    & \cellcolor{marginal} The stated metrics are used, but with no explanation of why those results occurred. Little to no caveats or alternate explanations are explored. The results have minimal connection to the goals of the project.
+    & \cellcolor{unacceptable} No results, or results that do not match the evaluation metrics or the project goals. \\
+\midrule
+\textbf{Ethical Considerations} - Why might people want to be careful about your project? What difficult decisions did you have to make?
+    & \cellcolor{excellent} The project is considered both in its complete technological and societal context. Issues of bias and diversity are explored in detail, and potential contributions to global and local inequity examined. Relevant literature is cited.
+    & \cellcolor{good} Both technological and societal context of the project is explored, although some considerations may be missing. Issues of bias and diversity are explored, as are potential contributions to global and local inequity. Little to no relevant literature is cited.
+    & \cellcolor{marginal} Only one of technological or societal context is considered, in insufficient detail. Issues of bias and diversity are explored in brief, as are contributions to global/local inequity. No relevant literature is cited. 
+    & \cellcolor{unacceptable} Ethical considerations are non existent or perfunctory. Issues of bias and diversity are glossed over or ignored, as are potential contributions to global and local inequity. Little to no relevant literature is cited. \\
+\midrule
+\textbf{Replication Instructions} - How would someone else use your project? (this should be an appendix to your paper; this does not count towards your page requirement/limit)
+    & \cellcolor{excellent} All software used by the project is listed, with instructions that successfully allow another CS student to execute it. Particular attention is paid to future-proving the instructions (eg. package version, VMs, etc.)
+    & \cellcolor{good} All software used by the project is listed, with instructions that successfully allow another CS student to execute it. Reproduction may require additional steps (eg. unguided installation of software).
+    & \cellcolor{marginal} Some software or steps for reproducing the project are missing or incorrect, requiring minor fixes. Reproduction may require additional steps (eg. unguided installation of software).
+    & \cellcolor{unacceptable} Some software or steps for reproducing the project are missing or incorrect, requiring major fixes or debugging. Additional requirements may be missing entirely and uninferable from what is provided. \\
+\midrule
+\textbf{Code Architecture Overview} - How would someone else extend your project? (this should be an appendix to your paper; this does not count towards your page requirement/limit)
+    & \cellcolor{excellent} The organization of the code is clearly laid out/diagrammed, with justification. Another developer could use the overview to extend or debug the project.
+    & \cellcolor{good} The organization of the code with incomplete justification. Another developer could discuss the merits of the code, but not contribute.
+    & \cellcolor{marginal} Boundaries between project components are awkward. The text is descriptive of the organization but does not aid understanding. Another developer will have trouble understanding the code.
+    & \cellcolor{unacceptable} Boundaries between project components are bizarre or non-existent. Another developer is better off starting from scratch. \\
+\end{longtable}
+\end{landscape}
+
+\end{document}
